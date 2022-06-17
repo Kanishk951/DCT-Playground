@@ -1,8 +1,8 @@
 public struct MyYCbCr
 {
-    public double lum;
-    public double cb;
-    public double cr;
+    public float lum;
+    public float cb;
+    public float cr;
 }
 
 public struct MyRGB

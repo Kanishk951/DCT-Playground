@@ -33,12 +33,6 @@ public class Manager : MonoBehaviour
 
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     public void ChooseImage()
     {
         image_sauce =
@@ -83,7 +77,7 @@ public class Manager : MonoBehaviour
 
         if (quantisized_image == null)
         {
-            return null;
+           return null;
         }
 
         return quantisized_image;

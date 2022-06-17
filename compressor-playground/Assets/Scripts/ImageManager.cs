@@ -88,9 +88,14 @@ public static class ImageManager
                 
                 Color color = image.GetPixel(x, y);
                 MyYCbCr for_this_pixel = new MyYCbCr();
-                for_this_pixel.lum = 16 + (68.481*color.r) + (128.553 * color.g) + (24.866 * color.b);
-                for_this_pixel.cb = 128 - (37.797 * color.r) - (74.203 * color.g) + (112.0 * color.b);
-                for_this_pixel.cr = 128 + (112.0 * color.r) - (93.786 * color.g) + (18.214 * color.b); 
+
+                float r = color.r * 255;
+                float g = color.g * 255;
+                float b = color.b * 255;
+
+                for_this_pixel.lum = (0.299f*r) + (0.587f*g)  + (0.114f*b);
+                for_this_pixel.cb = 128f - (.168736f * r) - (.331364f * g) + (.5f * b);
+                for_this_pixel.cr = 128f + (.5f * r) - (.418688f * g) - (.081312f * b); 
                 image_in_ycbcr[y, x] = for_this_pixel;
             }
         }
@@ -108,21 +113,21 @@ public static class ImageManager
         {
             for (int x = 0; x < input.GetLength(1); x++)
             {
-                double Y = (double) input[y, x].lum;
-                double Cb = (double) input[y, x].cb;
-                double Cr = (double) input[y, x].cr;
+                float Y = (float) input[y, x].lum;
+                float Cb = (float) input[y, x].cb;
+                float Cr = (float) input[y, x].cr;
                 
                 Cr -= 128;
                 Cb -= 128;
-                float r = (float) Y + (float) 45 * (float)Cr / 32 ;
-                float g = (float) Y - (11 * (float)Cb + 23 * (float)Cr) / 32 ;
-                float b = (float)Y + 113 * (float)Cb / 64 ;
+                float r = (Y + (1.402f * Cr));
+                float g = (Y - (0.34414f * Cb) - (.71414f * Cr));
+                float b = (Y + (1.772f * Cb));
         
-                r = Mathf.Max(0, Mathf.Min(255, r));
-                g = Mathf.Max(0, Mathf.Min(255, g));
-                b = Mathf.Max(0, Mathf.Min(255, b));
+                r = Mathf.Max(0, Mathf.Min(255.0f, r));
+                g = Mathf.Max(0, Mathf.Min(255.0f, g));
+                b = Mathf.Max(0, Mathf.Min(255.0f, b));
         
-                Color color = new Color(r/255, g/255, b/255, 1);
+                Color color = new Color(r/255.0f, g/255.0f, b/255.0f, 1);
                 rgb_image.SetPixel(x, y, color);
             }
         }
@@ -167,12 +172,12 @@ public static class ImageManager
                         int i_relative = i - x;
                         int j_relative = j - y;
 
-                        float c_x = C(u: i_relative);
-                        float c_y = C(u: j_relative);
+                        float c_i = C(u: i_relative);
+                        float c_j = C(u: j_relative);
                         MyYCbCr sum_fun_stuff = SumyStuff(x, y, i_relative, j_relative, input_space);
-                        double new_lum = 0.25 * c_x * c_y * sum_fun_stuff.lum;
-                        double new_cb = 0.25 * c_x * c_y * sum_fun_stuff.cb;
-                        double new_cr = 0.25 * c_x * c_y *sum_fun_stuff.cr;
+                        float new_lum = 0.25f * c_i * c_j * sum_fun_stuff.lum;
+                        float new_cb = 0.25f * c_i * c_j * sum_fun_stuff.cb;
+                        float new_cr = 0.25f * c_i * c_j *sum_fun_stuff.cr;
                         output_space[j, i].lum = new_lum;
                         output_space[j, i].cb = new_cb;
                         output_space[j, i].cr = new_cr;
@@ -195,9 +200,9 @@ public static class ImageManager
                 for (int j = y; j < y + 8; j++) {
                     for (int i = x; i < x + 8; i++) {
                         MyYCbCr sumy_output = SumyStuffForIDCT(x, y, (i - x), (j - y), input_space);
-                        output_space[j, i].lum = .25 * sumy_output.lum;
-                        output_space[j, i].cb = .25 * sumy_output.cb;
-                        output_space[j, i].cr = .25 * sumy_output.cr;
+                        output_space[j, i].lum = .25f * sumy_output.lum;
+                        output_space[j, i].cb = .25f * sumy_output.cb;
+                        output_space[j, i].cr = .25f * sumy_output.cr;
                     }
                 }
             }
@@ -222,8 +227,8 @@ public static class ImageManager
             for (int y = start_y; y < start_y + 8; y++)
             {
                 float pi = Mathf.PI;
-                float cos_i = Mathf.Cos(((2 * (x - start_x) + 1) * i * pi) / 16);
-                float cos_j = Mathf.Cos(((2 * (y - start_y) + 1) * j * pi) / 16);
+                float cos_i = Mathf.Cos(((2 * (x - start_x) + 1) * i * pi)*0.0625f);
+                float cos_j = Mathf.Cos(((2 * (y - start_y) + 1) * j * pi)*0.0625f);
 
                 float coefficient = cos_i * cos_j;
 
@@ -260,8 +265,8 @@ public static class ImageManager
                 float c_y = C(y_in_reference);
 
                 float pi = Mathf.PI;
-                float cos_x = Mathf.Cos(((2 * i + 1) * x_in_reference * pi) / 16);
-                float cos_y = Mathf.Cos(((2 * j + 1) * y_in_reference * pi) / 16);
+                float cos_x = Mathf.Cos(((2 * i + 1) * x_in_reference * pi) * 0.0625f);
+                float cos_y = Mathf.Cos(((2 * j + 1) * y_in_reference * pi) * 0.0625f);
 
                 float coefficient = cos_x * cos_y;
 
@@ -296,9 +301,13 @@ public static class ImageManager
 
                         int index_in_quant_table = ((j - y) * 8) + (i - x);
 
-                        output[j, i].lum = (int) (input[j, i].lum / quantization_table[0][index_in_quant_table]);
-                        output[j, i].cb = (int) (input[j, i].cb / quantization_table[1][index_in_quant_table]);
-                        output[j, i].cr = (int) (input[j, i].cr / quantization_table[2][index_in_quant_table]);
+                        float new_lum = input[j, i].lum / quantization_table[0][index_in_quant_table];
+                        float new_cb = input[j, i].cb / quantization_table[1][index_in_quant_table];
+                        float new_cr = input[j, i].cr / quantization_table[2][index_in_quant_table];
+
+                        output[j, i].lum = Mathf.RoundToInt(new_lum);
+                        output[j, i].cb =  Mathf.RoundToInt(new_cb);
+                        output[j, i].cr =  Mathf.RoundToInt(new_cr);
                     }
                 }
             }
@@ -323,7 +332,7 @@ public static class ImageManager
                     for (int i = x; i < x + 8; i++) {
                         int index_in_quant_table = ((j-y) * 8) + (i-x);
 
-                        output[j, i].lum = (input[j, i].lum * quantization_table[0][index_in_quant_table]);
+                        output[j, i].lum = input[j, i].lum * quantization_table[0][index_in_quant_table];
                         output[j, i].cb = input[j, i].cb * quantization_table[1][index_in_quant_table];
                         output[j, i].cr = input[j, i].cr * quantization_table[2][index_in_quant_table];
                     }
