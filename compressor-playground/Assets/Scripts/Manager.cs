@@ -21,7 +21,7 @@ public class Manager : MonoBehaviour
     {
         // 0 stands for lum (Y), 1 stands for CB, 2 stands for CR.
         for (int i = 0; i < 3; i++) {
-            using (StreamReader sr = new StreamReader($"QuantizationTables/{i}/{quality_factor}.txt")) {
+            using (StreamReader sr = new StreamReader($"Assets/QuantizationTables/{i}/{quality_factor}.txt")) {
                 if (sr == null) {
                     Debug.LogError($"Quant. table with a quality factor of {quality_factor} for {i} could not be found.");
                     return;
@@ -77,7 +77,7 @@ public class Manager : MonoBehaviour
 
         if (quantisized_image == null)
         {
-           return null;
+            return null;
         }
 
         return quantisized_image;

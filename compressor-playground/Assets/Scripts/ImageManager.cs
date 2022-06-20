@@ -306,7 +306,7 @@ public static class ImageManager
                         float new_cr = input[j, i].cr / quantization_table[2][index_in_quant_table];
 
                         output[j, i].lum = Mathf.RoundToInt(new_lum);
-                        output[j, i].cb =  Mathf.RoundToInt(new_cb);
+                        output[j, i].cb = Mathf.RoundToInt(new_cb);
                         output[j, i].cr =  Mathf.RoundToInt(new_cr);
                     }
                 }
