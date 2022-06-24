@@ -70,8 +70,8 @@ public class Manager : MonoBehaviour
 
     MyYCbCr[,] Encode(Texture2D input_as_texture) {
         MyYCbCr[,] image_in_ycbcr = ImageManager.ConvertToYCbCr(input_as_texture);
-        MyYCbCr[,] sampled_image = ImageManager.ChromaSumbsample(image_in_ycbcr, batch_side);
-        MyYCbCr[,] dct_coeff_image = ImageManager.ApplyDCT(sampled_image);
+        // MyYCbCr[,] sampled_image = ImageManager.ChromaSumbsample(image_in_ycbcr, batch_side);
+        MyYCbCr[,] dct_coeff_image = ImageManager.ApplyDCT(image_in_ycbcr);
 
         MyYCbCr[,] quantisized_image = ImageManager.Quantize(quant_tables, dct_coeff_image);
 
